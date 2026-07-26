@@ -15,12 +15,12 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install Rust Toolchain
-      uses: dtolnay/rust-toolchain@1.81.0
+      uses: dtolnay/rust-toolchain@stable
       with:
-        targets: wasm32-unknown-unknown
+        targets: wasm32v1-none
 
     - name: Run Smart Contract Tests
       run: cargo test --workspace
 
     - name: Build Soroban WASM Contract
-      run: cargo build --target wasm32-unknown-unknown --release --workspace
+      run: cargo build --target wasm32v1-none --release --workspace
