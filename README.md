@@ -131,14 +131,16 @@ Designed with a focus on intuitive UI/UX, TrustPay aims to eliminate payment def
 ## 📸 Project Verification Screenshots
 
 ### 1. Mobile Responsive UI
-![Mobile Responsive UI](insert-your-mobile-ui-screenshot-filename-here.png)
+![Mobile Responsive UI Screenshot.jpg)
 
 ### 2. CI/CD Pipeline Success
-![CI/CD Pipeline Running](cicd-success.png)
+![CI_CD Pipeline.jpg)
 
 ### 3. Automated Contract Tests (Passing)
-![Passing Tests Output](test-output.png)
+![success.jpg)
 
+### 4. Video Presentation (1-2 Min):** 
+[]
 ---
 
 ## 💻 Setup & Local Development
