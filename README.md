@@ -63,7 +63,7 @@ CAGLK3ZC7Y4XEDOO46DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA
 
 ---
 ## 📸 Wallet Options Screenshot
-![Multi-Wallet Selection](wallet-modal.png)
+![Multi-Wallet Selection](wallet-modal.jpg)
 
 ---
 
