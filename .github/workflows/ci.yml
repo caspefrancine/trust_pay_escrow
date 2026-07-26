@@ -1,0 +1,28 @@
+name: TrustPay Escrow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    - name: Run Smart Contract Tests
+      working-directory: ./contracts/trust_pay_escrow
+      run: cargo test
+
+    - name: Build Soroban WASM Contract
+      working-directory: ./contracts/trust_pay_escrow
+      run: cargo build --target wasm32-unknown-unknown --release
