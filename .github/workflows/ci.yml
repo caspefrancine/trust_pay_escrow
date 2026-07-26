@@ -1,4 +1,4 @@
-name: TrustPay Escrow CI/CD Pipeline
+name: TrustPay Escrow Level 3 CI/CD Pipeline
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts/trust_pay_escrow
 
     steps:
     - name: Checkout Repository
@@ -20,9 +23,7 @@ jobs:
         targets: wasm32-unknown-unknown
 
     - name: Run Smart Contract Tests
-      working-directory: ./contracts/trust_pay_escrow
       run: cargo test
 
     - name: Build Soroban WASM Contract
-      working-directory: ./contracts/trust_pay_escrow
       run: cargo build --target wasm32-unknown-unknown --release
