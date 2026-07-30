@@ -149,3 +149,15 @@ Designed with a focus on intuitive UI/UX, TrustPay aims to eliminate payment def
    ```bash
    git clone [https://github.com/caspefrancine/trust_pay_escrow.git](https://github.com/caspefrancine/trust_pay_escrow.git)
    cd trust_pay_escrow
+
+
+SCREENSHOTS LEVEL 1:
+### 1. ✅ Stellar Wallet Integration
+![connected to freighter.jpg]
+![wallet freighter.jpg]
+
+### 2. ✅ Connect Wallet Functionality:
+![connect button.jpg]
+
+### 3. ✅ Wallet Permissions & Address Retrieval:
+![permission.jpg]
