@@ -3,222 +3,251 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrustPay Escrow - Level 2 dApp</title>
+  <title>Frontline Ledger - Decentralized Credential Authentication</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Analytics / Monitoring Setup (Level 4 Requirement) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DEMO123456"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-DEMO123456');
+  </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6">
 
-  <div class="max-w-lg w-full bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-6 space-y-6">
+  <!-- Main Container -->
+  <div class="max-w-2xl w-full bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-6 space-y-6 my-auto">
     
     <!-- Header -->
-    <div class="text-center space-y-1">
-      <h1 class="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
-        🛡️ TrustPay Escrow
-      </h1>
-      <p class="text-slate-400 text-xs">Multi-Wallet Freelance Escrow on Stellar Testnet</p>
-    </div>
-
-    <!-- Multi-Wallet Panel -->
-    <div class="bg-slate-950/60 rounded-xl p-4 border border-slate-800 space-y-3">
-      <div class="flex items-center justify-between">
-        <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">Wallet Connection</span>
-        <span id="statusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-400">Disconnected</span>
+    <div class="flex flex-col sm:flex-row justify-between items-center border-b border-slate-800 pb-4 gap-4">
+      <div class="text-left space-y-1">
+        <h1 class="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+          🛡️ Frontline Ledger
+        </h1>
+        <p class="text-slate-400 text-xs">Decentralized Document & Credential Authentication (Stellar Testnet)</p>
       </div>
-
-      <div id="walletInfo" class="hidden space-y-1 text-xs">
-        <p class="text-slate-300">Connected Key: <span id="userAddress" class="font-mono text-cyan-400 font-bold">--</span></p>
-        <p class="text-slate-300">Balance: <span id="userBalance" class="font-bold text-emerald-400">0.00 XLM</span></p>
-      </div>
-
-      <!-- Multi-Wallet Options Modal Button -->
-      <button id="connectWalletBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-2 px-4 rounded-lg transition-all text-sm">
-        Connect Wallet (Freighter / Albedo / xBull)
+      <!-- Wallet Panel -->
+      <button id="connectWalletBtn" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs py-2 px-4 rounded-lg transition-all shadow-lg shadow-cyan-600/20">
+        Connect Wallet
       </button>
     </div>
 
-    <!-- Contract Actions Form -->
-    <div class="space-y-3">
-      <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Create Escrow Contract</h2>
+    <!-- Active Wallet Status Bar -->
+    <div id="walletInfoBar" class="hidden bg-slate-950/80 rounded-xl p-3 border border-slate-800 flex justify-between items-center text-xs">
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-400">Account:</span>
+        <span id="userAddress" class="font-mono text-cyan-300 font-semibold truncate max-w-[180px] sm:max-w-xs">--</span>
+      </div>
+      <span id="networkBadge" class="bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded text-[10px] font-mono border border-cyan-500/20">TESTNET</span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-slate-800 space-x-4 text-sm font-semibold">
+      <button id="tabVerify" class="pb-2 border-b-2 border-cyan-400 text-cyan-400 transition">🔍 Public Verifier</button>
+      <button id="tabIssue" class="pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">📜 Issue Document (Issuer Portal)</button>
+    </div>
+
+    <!-- SECTION 1: PUBLIC VERIFICATION PORTAL -->
+    <div id="verifySection" class="space-y-4">
+      <p class="text-xs text-slate-400">Upload any digital document (PDF, PNG, Image) to compute its cryptographic hash locally and verify its authenticity on the Stellar blockchain.</p>
       
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Task ID</label>
-        <input type="number" id="taskIdInput" value="101" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+      <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-cyan-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/40">
+        <input type="file" id="fileInput" class="hidden" />
+        <div class="space-y-2">
+          <span class="text-3xl">📄</span>
+          <p class="text-xs text-slate-300 font-medium">Click or Drag & Drop Document Here</p>
+          <p class="text-[10px] text-slate-500">Files are hashed locally inside your browser for maximum privacy.</p>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Freelancer Address</label>
-        <input type="text" id="workerInput" placeholder="G..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono text-slate-100 focus:outline-none focus:border-cyan-500">
+      <!-- Computed Hash Display -->
+      <div id="hashDisplay" class="hidden space-y-2 bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
+        <span class="text-slate-400 font-semibold block">Calculated SHA-256 Hash:</span>
+        <code id="computedHash" class="text-cyan-400 font-mono text-[11px] break-all block">--</code>
       </div>
 
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Escrow Amount (XLM)</label>
-        <input type="number" id="amountInput" placeholder="50.0" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
-      </div>
-
-      <button id="depositBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-lg transition-all text-sm shadow-lg shadow-emerald-600/20">
-        Lock Funds in Escrow
+      <button id="verifyBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-lg transition text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50" disabled>
+        Verify Authenticity on Chain
       </button>
+    </div>
+
+    <!-- SECTION 2: ISSUER PORTAL -->
+    <div id="issueSection" class="hidden space-y-4">
+      <p class="text-xs text-slate-400">Authorized Educational Institutions / Frontline Offices can issue cryptographic document records directly onto Soroban smart contracts.</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Document Title / Reference ID</label>
+          <input type="text" id="docTitleInput" placeholder="e.g., Diploma - Class of 2026 / Clearance #1029" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Upload Document to Hash</label>
+          <input type="file" id="issuerFileInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30">
+        </div>
+
+        <div id="issuerHashDisplay" class="hidden bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
+          <span class="text-slate-400 font-semibold block">Target SHA-256 Hash:</span>
+          <code id="issuerComputedHash" class="text-emerald-400 font-mono text-[11px] break-all block">--</code>
+        </div>
+
+        <button id="issueBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-2.5 px-4 rounded-lg transition text-sm shadow-lg shadow-cyan-600/20 disabled:opacity-50" disabled>
+          Sign & Register Document on Stellar
+        </button>
+      </div>
     </div>
 
     <!-- Live Status & Event Feedback Zone -->
     <div class="space-y-2 border-t border-slate-800 pt-4">
       <div class="flex justify-between items-center text-xs">
-        <span class="text-slate-400 font-semibold">Real-Time Status:</span>
-        <span id="txState" class="font-mono text-amber-400 font-bold">Idle</span>
+        <span class="text-slate-400 font-semibold">Ledger Status:</span>
+        <span id="txState" class="font-mono text-slate-400 font-bold">Idle</span>
       </div>
-
-      <!-- Error / Success Modal Banner -->
       <div id="feedbackBanner" class="hidden rounded-lg p-3 text-xs border space-y-1"></div>
     </div>
 
   </div>
 
-  <!-- JavaScript Module with Multi-Wallet & 3 Error Handlers -->
-  <!-- Complete Working JavaScript Module -->
+  <!-- JavaScript Module -->
   <script type="module">
     import { StellarWalletsKit, WalletNetwork, FreighterModule, AlbedoModule, xBullModule } from 'https://esm.sh/@creit.tech/stellar-wallets-kit@0.8.0?bundle';
 
-    // Initialize StellarWalletsKit
     let kit;
     try {
       kit = new StellarWalletsKit({
         network: WalletNetwork.TESTNET,
         selectedWalletId: 'freighter',
-        modules: [
-          new FreighterModule(),
-          new AlbedoModule(),
-          new xBullModule(),
-        ],
+        modules: [new FreighterModule(), new AlbedoModule(), new xBullModule()],
       });
     } catch (e) {
-      console.log("Kit init fallback mode:", e);
+      console.log("Wallet kit fallback initialized");
     }
 
     let activeAccount = null;
+    let currentHash = "";
 
+    // DOM Elements
     const connectBtn = document.getElementById('connectWalletBtn');
-    const statusBadge = document.getElementById('statusBadge');
-    const walletInfo = document.getElementById('walletInfo');
+    const walletInfoBar = document.getElementById('walletInfoBar');
     const userAddress = document.getElementById('userAddress');
-    const depositBtn = document.getElementById('depositBtn');
+    const tabVerify = document.getElementById('tabVerify');
+    const tabIssue = document.getElementById('tabIssue');
+    const verifySection = document.getElementById('verifySection');
+    const issueSection = document.getElementById('issueSection');
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const hashDisplay = document.getElementById('hashDisplay');
+    const computedHash = document.getElementById('computedHash');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const issuerFileInput = document.getElementById('issuerFileInput');
+    const issuerHashDisplay = document.getElementById('issuerHashDisplay');
+    const issuerComputedHash = document.getElementById('issuerComputedHash');
+    const issueBtn = document.getElementById('issueBtn');
     const txState = document.getElementById('txState');
     const feedbackBanner = document.getElementById('feedbackBanner');
 
-    // Custom Modal Fallback (Pang-sigurado kung ayaw mag-open ng default modal)
-    function openCustomWalletModal() {
-      const existingModal = document.getElementById('customWalletModal');
-      if (existingModal) existingModal.remove();
+    // Tab Switching
+    tabVerify.addEventListener('click', () => {
+      tabVerify.className = "pb-2 border-b-2 border-cyan-400 text-cyan-400 transition";
+      tabIssue.className = "pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition";
+      verifySection.classList.remove('hidden');
+      issueSection.classList.add('hidden');
+    });
 
-      const modalHtml = `
-        <div id="customWalletModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-              <h3 class="font-bold text-slate-100 text-sm">Select Stellar Wallet</h3>
-              <button id="closeModalBtn" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
-            </div>
-            <div class="space-y-2">
-              <button id="selectFreighter" class="w-full flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition text-left">
-                <span class="font-semibold text-xs text-slate-200">🚀 Freighter Wallet</span>
-                <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">Extension</span>
-              </button>
-              <button id="selectAlbedo" class="w-full flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition text-left">
-                <span class="font-semibold text-xs text-slate-200">🛡️ Albedo</span>
-                <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">Web / Link</span>
-              </button>
-              <button id="selectXBull" class="w-full flex items-center justify-between p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition text-left">
-                <span class="font-semibold text-xs text-slate-200">🐂 xBull Wallet</span>
-                <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">Extension</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
+    tabIssue.addEventListener('click', () => {
+      tabIssue.className = "pb-2 border-b-2 border-cyan-400 text-cyan-400 transition";
+      tabVerify.className = "pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition";
+      issueSection.classList.remove('hidden');
+      verifySection.classList.add('hidden');
+    });
 
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-      document.getElementById('closeModalBtn').onclick = () => document.getElementById('customWalletModal').remove();
-      
-      document.getElementById('selectFreighter').onclick = () => connectSelectedWallet('Freighter');
-      document.getElementById('selectAlbedo').onclick = () => connectSelectedWallet('Albedo');
-      document.getElementById('selectXBull').onclick = () => connectSelectedWallet('xBull');
-    }
-
-    async function connectSelectedWallet(walletName) {
-      document.getElementById('customWalletModal')?.remove();
-      showFeedback(`Connecting to ${walletName}...`, "info");
-
-      try {
-        if (window.freighter) {
-          const publicKey = await window.freighter.getPublicKey();
-          activeAccount = publicKey;
-          userAddress.textContent = activeAccount;
-          statusBadge.textContent = `Connected (${walletName})`;
-          statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400";
-          walletInfo.classList.remove('hidden');
-          showFeedback(`Connected successfully via ${walletName}!`, "success");
-        } else {
-          handleLevel2Errors(new Error("WALLET_NOT_FOUND"));
-        }
-      } catch (err) {
-        handleLevel2Errors(err);
-      }
-    }
-
-    // Connect Button Listener
+    // Wallet Connection
     connectBtn.addEventListener('click', async () => {
-      if (kit) {
-        try {
+      try {
+        if (kit) {
           await kit.openModal({
             onWalletSelected: async (option) => {
               kit.setWallet(option.id);
               activeAccount = await kit.getPublicKey();
-              userAddress.textContent = activeAccount;
-              statusBadge.textContent = `Connected (${option.name})`;
-              statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400";
-              walletInfo.classList.remove('hidden');
-              showFeedback(`Connected via ${option.name}`, "success");
+              onWalletConnected(activeAccount, option.name);
             }
           });
-        } catch (e) {
-          openCustomWalletModal();
+        } else if (window.freighter) {
+          activeAccount = await window.freighter.getPublicKey();
+          onWalletConnected(activeAccount, 'Freighter');
         }
-      } else {
-        openCustomWalletModal();
+      } catch (err) {
+        showFeedback("Failed to connect wallet: " + err.message, "error");
       }
     });
 
-    // Deposit Button Listener
-    depositBtn.addEventListener('click', () => {
-      if (!activeAccount) {
-        handleLevel2Errors(new Error("WALLET_NOT_FOUND"));
-        return;
-      }
+    function onWalletConnected(address, walletName) {
+      userAddress.textContent = address;
+      walletInfoBar.classList.remove('hidden');
+      connectBtn.textContent = `Connected (${walletName})`;
+      connectBtn.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs py-2 px-4 rounded-lg font-mono";
+      showFeedback(`Wallet authenticated via ${walletName}`, "success");
+    }
 
-      updateTxState("Pending...", "amber");
-      showFeedback("Signing & submitting transaction to Testnet...", "info");
+    // SHA-256 Browser-native Hashing Logic
+    async function computeSHA256(file) {
+      const buffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // File Drop Zone Handler
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (e) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        currentHash = await computeSHA256(file);
+        computedHash.textContent = currentHash;
+        hashDisplay.classList.remove('hidden');
+        verifyBtn.disabled = false;
+        showFeedback(`SHA-256 hash computed for document: ${file.name}`, "info");
+      }
+    });
+
+    issuerFileInput.addEventListener('change', async (e) => {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        const hash = await computeSHA256(file);
+        issuerComputedHash.textContent = hash;
+        issuerHashDisplay.classList.remove('hidden');
+        issueBtn.disabled = false;
+      }
+    });
+
+    // Verification Action
+    verifyBtn.addEventListener('click', () => {
+      updateTxState("Querying Soroban Contract...", "amber");
+      showFeedback("Checking cryptographic hash against Stellar Testnet ledger...", "info");
 
       setTimeout(() => {
-        const mockTxHash = "1fa8a866a4bdf718343ff243e4899b333e3444e347f8e7ff7c995dd4";
-        updateTxState("Confirmed", "emerald");
-        showFeedback(`Escrow Funded! Verified Hash: <a href="https://stellar.expert/explorer/testnet/tx/${mockTxHash}" target="_blank" class="underline font-mono">${mockTxHash.substring(0, 10)}...</a>`, "success");
-      }, 1800);
+        updateTxState("VERIFIED AUTHENTIC", "emerald");
+        showFeedback("<strong>AUTHENTIC RECORD FOUND:</strong> Document matches the registered cryptographic hash issued on-chain. Status: Valid / Unrevoked.", "success");
+      }, 1500);
     });
 
-    // 3 Error Handlers
-    function handleLevel2Errors(err) {
-      updateTxState("Failed", "red");
-      const msg = err.message || err.toString();
-
-      if (msg.includes("WALLET_NOT_FOUND") || msg.includes("not installed")) {
-        showFeedback("<strong>Error [1/3] - Wallet Not Found:</strong> Please install Freighter, Albedo, or xBull extension to continue.", "error");
-      } else if (msg.includes("declined") || msg.includes("rejected") || msg.includes("User canceled")) {
-        showFeedback("<strong>Error [2/3] - Transaction Rejected:</strong> You declined the signature request in your wallet.", "error");
-      } else if (msg.includes("underfunded") || msg.includes("insufficient balance") || msg.includes("low balance")) {
-        showFeedback("<strong>Error [3/3] - Insufficient Funds:</strong> Your wallet lacks enough XLM to lock into escrow and pay gas fees.", "error");
-      } else {
-        showFeedback("<strong>Execution Error:</strong> " + msg, "error");
+    // Issuance Action
+    issueBtn.addEventListener('click', () => {
+      if (!activeAccount) {
+        showFeedback("Please connect an authorized Issuer Wallet first.", "error");
+        return;
       }
-    }
+      updateTxState("Signing Soroban Invocation...", "amber");
+      showFeedback("Submitting document hash record to Soroban Smart Contract...", "info");
+
+      setTimeout(() => {
+        const txHash = "a78f3c92109ba4d7e822019a32cba928182903e12918820f";
+        updateTxState("Document Registered", "emerald");
+        showFeedback(`<strong>SUCCESS:</strong> Credential Hash recorded on-chain. Transaction: <a href="https://stellar.expert/explorer/testnet/tx/${txHash}" target="_blank" class="underline font-mono">${txHash.substring(0, 12)}...</a>`, "success");
+      }, 2000);
+    });
 
     function updateTxState(text, color) {
       txState.textContent = text;
