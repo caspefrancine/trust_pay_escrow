@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Onboarding & Feedback Portal - Frontline Ledger</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- Glow effects -->
+  <div class="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+
+  <main class="max-w-xl w-full bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800 p-6 sm:p-8 space-y-6">
+    
+    <!-- Header -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center space-x-2 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full text-cyan-400 text-xs font-mono">
+        <span>🛡️</span> <span>Level 5 Protocol Validation</span>
+      </div>
+      <h1 class="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+        User Feedback & Onboarding
+      </h1>
+      <p class="text-slate-400 text-xs">Help us refine Frontline Ledger v2.0 on the Stellar Testnet.</p>
+    </div>
+
+    <!-- Form -->
+    <form id="feedbackForm" class="space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Full Name</label>
+        <input type="text" id="name" required placeholder="e.g. Francine Caspe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
+        <input type="email" id="email" required placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Stellar Testnet Public Key (Wallet Address)</label>
+        <input type="text" id="wallet" required placeholder="GCTN..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-cyan-300 focus:outline-none focus:border-cyan-500 transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">User Role</label>
+        <select id="role" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 transition">
+          <option value="Student">Student</option>
+          <option value="Faculty/Admin">Faculty / Admin</option>
+          <option value="Developer">Developer / Peer Reviewer</option>
+          <option value="Verifier">Verifier</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Product Usability & Verification Speed (1 to 5)</label>
+        <select id="rating" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-cyan-500 transition">
+          <option value="5">5 - Excellent (Fast & Intuitive)</option>
+          <option value="4">4 - Very Good</option>
+          <option value="3">3 - Satisfactory</option>
+          <option value="2">2 - Needs Improvement</option>
+          <option value="1">1 - Poor</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Detailed Feedback & Suggestions</label>
+        <textarea id="feedback" rows="3" required placeholder="Share your suggestions for improvement..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition"></textarea>
+      </div>
+
+      <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold py-3 px-4 rounded-xl transition text-xs shadow-lg shadow-cyan-500/20">
+        Submit Response & Sync to Ledger Sheet
+      </button>
+    </form>
+
+    <!-- Feedback Status -->
+    <div id="statusMsg" class="hidden text-center p-3 text-xs rounded-xl border"></div>
+
+    <hr class="border-slate-800">
+
+    <!-- NEW FEATURE: Export Local Copy to CSV / Excel Button -->
+    <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+      <div>
+        <span class="font-bold text-slate-300 block">Export Responses Feature</span>
+        <span class="text-[10px] text-slate-500">Download locally cached responses as .CSV file</span>
+      </div>
+      <button id="exportCsvBtn" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-3 py-1.5 rounded-lg font-mono text-[11px] transition">
+        📥 Export CSV
+      </button>
+    </div>
+
+    <div class="text-center">
+      <a href="index.html" class="text-xs text-slate-400 hover:text-cyan-400 transition">← Back to Main App</a>
+    </div>
+
+  </main>
+
+  <script>
+    // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
+    const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+    const form = document.getElementById('feedbackForm');
+    const statusMsg = document.getElementById('statusMsg');
+    const submitBtn = document.getElementById('submitBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+    // Local array to keep track of submissions on this browser for local CSV export
+    let localSubmissions = JSON.parse(localStorage.getItem('frontline_feedback_cache') || '[]');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Syncing to Cloud Sheet...";
+
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        wallet: document.getElementById('wallet').value,
+        role: document.getElementById('role').value,
+        rating: document.getElementById('rating').value,
+        feedback: document.getElementById('feedback').value,
+        date: new Date().toLocaleString()
+      };
+
+      try {
+        // Submit to Google Sheets API
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-corps',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        // Save locally for CSV Export feature
+        localSubmissions.push(formData);
+        localStorage.setItem('frontline_feedback_cache', JSON.stringify(localSubmissions));
+
+        statusMsg.className = "text-center p-3 text-xs rounded-xl border bg-emerald-500/10 text-emerald-400 border-emerald-500/30 block";
+        statusMsg.innerHTML = "✅ <strong>Response Recorded!</strong> Your feedback has been automatically synced to the Master Excel Sheet.";
+        form.reset();
+      } catch (err) {
+        statusMsg.className = "text-center p-3 text-xs rounded-xl border bg-red-500/10 text-red-400 border-red-500/30 block";
+        statusMsg.innerHTML = "❌ Failed to sync response. Please try again.";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Response & Sync to Ledger Sheet";
+      }
+    });
+
+    // Client-side CSV / Excel Export Functionality
+    exportCsvBtn.addEventListener('click', () => {
+      if (localSubmissions.length === 0) {
+        alert("No responses recorded in this browser session yet! Submit a form first to test export.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,Date,Name,Email,Wallet Address,Role,Rating,Feedback\n";
+
+      localSubmissions.forEach(row => {
+        let cleanFeedback = `"${row.feedback.replace(/"/g, '""')}"`;
+        csvContent += `${row.date},${row.name},${row.email},${row.wallet},${row.role},${row.rating},${cleanFeedback}\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "Frontline_Ledger_User_Feedback.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+</body>
+</html>
