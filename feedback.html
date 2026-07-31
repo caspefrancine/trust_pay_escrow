@@ -95,15 +95,13 @@
   </main>
 
   <script>
-    // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
-    const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxebmjAt_KYI_n7PNRqSSR02cUbweZctJURZ4NbzLA4J1tmHELl39omsSzV88UyOduiEw/exec";
 
     const form = document.getElementById('feedbackForm');
     const statusMsg = document.getElementById('statusMsg');
     const submitBtn = document.getElementById('submitBtn');
     const exportCsvBtn = document.getElementById('exportCsvBtn');
 
-    // Local array to keep track of submissions on this browser for local CSV export
     let localSubmissions = JSON.parse(localStorage.getItem('frontline_feedback_cache') || '[]');
 
     form.addEventListener('submit', async (e) => {
@@ -123,15 +121,13 @@
       };
 
       try {
-        // Submit to Google Sheets API
         await fetch(SCRIPT_URL, {
           method: 'POST',
-          mode: 'no-corps',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
 
-        // Save locally for CSV Export feature
         localSubmissions.push(formData);
         localStorage.setItem('frontline_feedback_cache', JSON.stringify(localSubmissions));
 
@@ -147,7 +143,6 @@
       }
     });
 
-    // Client-side CSV / Excel Export Functionality
     exportCsvBtn.addEventListener('click', () => {
       if (localSubmissions.length === 0) {
         alert("No responses recorded in this browser session yet! Submit a form first to test export.");
