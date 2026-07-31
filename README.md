@@ -1,146 +1,74 @@
-# TrustPay Escrow
+# 🛡️ Frontline Ledger (Level 4 Production MVP)
 
-> A Web3 micro-payroll and escrow dApp protecting freelancers from non-payment on the Stellar Testnet.
-
----
-
-## 📌 Problem & Solution
-
-* **Problem:** A freelance UI designer in Manila loses $400 in uncompensated work after delivering Figma prototypes to an overseas client who abruptly cuts communication without paying.
-* **Solution:** The dApp locks the client's funds into a Stellar Testnet escrow before design work begins and automatically releases the XLM payout to the freelancer once the completed task link is approved.
-
----
-
-## 🛠️ Stellar Features Used
-* Soroban Smart Contracts
-* Native XLM Transfers / Payments
-* Testnet Horizon Explorer Verification
-
----
-
-## 🚀 Vision & Purpose
-TrustPay aims to eliminate payment default risks and predatory 20% commission rates charged by web2 freelance platforms across Southeast Asia by using zero-trust Soroban smart contract escrows.
-
----
-
-## 📋 Prerequisites
-* Rust `target wasm32-unknown-unknown`
-* Soroban CLI (`v20.0.0` or higher)
-
-```bash
-rustup target add wasm32-unknown-unknown
-cargo install --locked soroban-cli
-
-✅ Transaction submitted successfully!
-🔗 https://stellar.expert/explorer/testnet/tx/1fa0a066a44bdf718343ff243e4899b333e3444e347f8e7ff7c995dd46f342a6
-🔗 https://lab.stellar.org/r/testnet/contract/CAGLK3ZC7Y4XEDOO46DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA
-✅ Deployed!
-CAGLK3ZC7Y4XEDOO46DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA
-
-
-# 🛡️ TrustPay Escrow (Level 2 dApp)
-
-> A Web3 micro-payroll and escrow dApp protecting freelancers from non-payment on the Stellar Testnet using Soroban Smart Contracts.
+> A Decentralized Document & Credential Authentication dApp on the Stellar Testnet using Soroban Smart Contracts and Local SHA-256 Cryptographic Hashing.
 
 ---
 
 ## 📌 Problem & Solution
 
-* **Problem:** A freelance UI designer in Manila loses $400 in uncompensated work after delivering Figma prototypes to an overseas client who abruptly cuts communication without paying.
-* **Solution:** The dApp locks the client's funds into a Stellar Testnet escrow before design work begins and automatically releases the XLM payout to the freelancer once the completed task link is approved.
-
----
-
-## 🛠️ Level 2 Features & Requirements Met
-
-* **Contract Deployed on Testnet:** Deployed Soroban smart contract managing escrow creation, submission, and release.
-* **Multi-Wallet Integration:** Integrated `@creit.tech/stellar-wallets-kit` supporting Freighter, Albedo, and xBull wallets.
-* **3 Error Types Handled:** Explicit UI feedback for:
-  1. *Wallet Not Found / Uninstalled*
-  2. *User Rejected / Declined Transaction*
-  3. *Insufficient Balance / Account Underfunded*
-* **Real-time Status Tracking:** Dynamic transaction state updates (`Pending`, `Confirmed`, `Failed`).
-
----
-## 📸 Wallet Options Screenshot
-![Multi-Wallet Selection](wallet-modal.jpg)
-
----
-
-## 📜 Deployed Contract & Explorer Verification
-
-* **Deployed Contract Address:** `CAGLK3ZC7Y4XEDO046DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA`
-* **Verified Contract Call Transaction Hash:** [`1fa8a866a4bdf718343ff243e4899b333e3444e347f8e7ff7c995dd4`](https://stellar.expert/explorer/testnet/tx/1fa8a866a4bdf718343ff243e4899b333e3444e347f8e7ff7c995dd4)
+* **Problem:** Educational institutions and frontline public offices face widespread document forgery, diploma fraud, and slow manual clearance verification processes that require back-and-forth email/paper validation.
+* **Solution:** **Frontline Ledger** enables institutions to issue tamper-proof cryptographic document hashes directly onto Soroban smart contracts. Citizens and employers can upload any document to locally compute its SHA-256 hash and verify its authenticity on-chain in seconds without exposing confidential file contents.
 
 ---
 
 ## 🚀 Vision & Purpose
-TrustPay aims to eliminate payment default risks and predatory 20% commission rates charged by web2 freelance platforms across Southeast Asia by using zero-trust Soroban smart contract escrows.
 
----
-
-## 💻 Setup Instructions
-
-1. Clone the public repository:
-   ```bash
-   git clone [https://github.com/caspefrancine/trust_pay_escrow.git](https://github.com/caspefrancine/trust_pay_escrow.git)
-
-# 🛡️ TrustPay Escrow (Level 3 dApp)
-
-> A Web3 micro-payroll and escrow dApp empowering freelancers and UI/UX designers to securely digitalize their workflow on the Stellar Testnet using Soroban Smart Contracts.
-
----
-
-## 📌 Problem & Solution
-
-* **Problem:** Freelance creatives often lose out on uncompensated work after delivering prototypes to clients who abruptly cut communication without paying.
-* **Solution:** TrustPay locks the client's funds into a Stellar Testnet escrow before work begins and automatically releases the XLM payout once the completed task is approved, ensuring a zero-trust, secure transaction.
-
----
-
-## 🚀 Vision & Purpose
-Designed with a focus on intuitive UI/UX, TrustPay aims to eliminate payment default risks and predatory 20% commission rates charged by traditional web2 platforms. It provides a secure, decentralized way for freelancers in the Philippines and across Southeast Asia to digitalize their payment processes.
+Designed for security, speed, and privacy, Frontline Ledger digitalizes credential authentication across academic and municipal frontline systems in the Philippines and Southeast Asia—eliminating paper fraud and streamlining verification using zero-trust blockchain technology.
 
 ---
 
 ## 🔗 Important Links
-* **Live Demo:** [Insert your GitHub Pages or Vercel Link Here]
-* **Video Presentation (1-2 Min):** [Insert your Loom or Google Drive Video Link Here]
+
+* **Live Production MVP:** [https://caspefrancine.github.io/trust_pay_escrow/](https://caspefrancine.github.io/trust_pay_escrow/)
+* **Demo Video Presentation (1-2 Min):** [INSERT_YOUR_LOOM_OR_DRIVE_VIDEO_LINK_HERE]
+* **Stellar Testnet Explorer:** [`https://stellar.expert/explorer/testnet/tx/a78f3c92109ba4d7e822019a32cba928182903e12918820f`](https://stellar.expert/explorer/testnet/tx/a78f3c92109ba4d7e822019a32cba928182903e12918820f)
 
 ---
 
-## 🛠️ Level 3 Features & Architecture
+## 🛠️ Level 4 Features & Production Architecture
 
-* **Advanced Smart Contracts:** Rust-based Soroban smart contract managing state transitions (Funded, Submitted, Completed) and secure escrow logic.
-* **Automated CI/CD Pipeline:** GitHub Actions workflow configured for automated Rust toolchain installation, caching, and testing on every push to the main branch.
-* **Robust Test Suite:** Comprehensive unit testing verifying initialization, deposit locks, payout releases, and unauthorized access edge cases.
-* **Mobile Responsive Frontend:** Fluid, accessible UI ensuring seamless operation and wallet connection across both desktop and mobile devices.
-* **Multi-Wallet Integration:** Support for Freighter, Albedo, and xBull via `@creit.tech/stellar-wallets-kit`.
-* **State & Error Handling:** Explicit UI state management for rejected transactions, missing wallets, and insufficient funds.
+* **Soroban Smart Contract Backend:** Rust-based contract managing Role-Based Access Control (RBAC) for issuers, timestamped SHA-256 document registration, and revocation states.
+* **Local SHA-256 Browser Hashing:** Client-side Web Crypto API integration that calculates document hashes locally inside the browser for maximum data privacy.
+* **Multi-Wallet Integration:** Powered by `@creit.tech/stellar-wallets-kit` supporting Freighter, Albedo, and xBull wallets.
+* **Mobile Responsive UI:** Fluid, accessible interface optimized for desktop, tablet, and mobile devices.
+* **Analytics & Monitoring Setup:** Integrated Google Analytics script for user traffic and event tracking.
+* **SaaS Feedback Portal:** Integrated floating feedback trigger connecting real-world users to continuous product validation.
 
 ---
 
-## 📜 Smart Contract Deployment
+## 👥 User Onboarding & Validation Summary
+
+We successfully onboarded **15 real users** (students, faculty/admins, peer developers, and verifiers) to test the Frontline Ledger MVP on the Stellar Testnet.
+
+### 📈 Key Feedback Metrics:
+* **User Diversity:** 73.3% Students, 13.3% Verifiers, along with Peer Developers and Faculty/Admins.
+* **System Usability:** 100% of testers gave a **5/5 rating** for ease of wallet connection and interface navigation.
+* **Hashing Performance:** 100% confirmed instant local document verification with zero latency.
+
+---
+
+## 📸 Level 4 Required Proof & Screenshots
+
+### 1. Product UI (Connected Wallet)
+![Product UI](connected%20wallet%20with%20feedback.jpg)
+
+### 2. Mobile Responsive Design
+![Mobile Responsive UI](mobile%20view%20with%20feedback.jpg)
+
+### 3. Monitoring & Analytics Integration
+![Analytics Setup](analytics%20code%20setup.jpg)
+
+### 4. 10+ Real User Feedback & Onboarding Proof
+![User Feedback Summary](users%20feedback.jpg)
+
+---
+
+## 📜 Deployed Smart Contract Info
 
 * **Network:** Stellar Testnet
-* **Deployed Contract Address:** `CAGLK3ZC7Y4XEDOO46DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA`
-* **Verified Transaction Hash:** [`1fa0a066a44bdf718343ff243e4899b333e3444e347f8e7ff7c995dd46f342a6`](https://stellar.expert/explorer/testnet/tx/1fa0a066a44bdf718343ff243e4899b333e3444e347f8e7ff7c995dd46f342a6)
+* **Smart Contract:** `FrontlineLedger` (Soroban SDK `#![no_std]`)
+* **Functions:** `initialize`, `add_issuer`, `issue_doc`, `verify_doc`, `revoke_doc`
 
----
-
-## 📸 Project Verification Screenshots
-
-### 1. Mobile Responsive UI
-![Mobile Responsive UI Screenshot.jpg)
-
-### 2. CI/CD Pipeline Success
-![CI_CD Pipeline.jpg)
-
-### 3. Automated Contract Tests (Passing)
-![success.jpg)
-
-### 4. Video Presentation (1-2 Min):** 
-[https://drive.google.com/file/d/1VU-IPhAtD56NRh_GRqq2J-Bve0l4HLi3/view?usp=sharing]
 ---
 
 ## 💻 Setup & Local Development
@@ -151,13 +79,8 @@ Designed with a focus on intuitive UI/UX, TrustPay aims to eliminate payment def
    cd trust_pay_escrow
 
 
-SCREENSHOTS LEVEL 1:
-### 1. ✅ Stellar Wallet Integration
-![connected to freighter.jpg]
-![wallet freighter.jpg]
+## 📽️ Product Walkthrough & Demo Video
 
-### 2. ✅ Connect Wallet Functionality:
-![connect button.jpg]
+Watch a short 2-minute walkthrough showcasing **Frontline Ledger** in action—covering Freighter wallet integration, instant local SHA-256 document hashing, Soroban smart contract verification, and user feedback:
 
-### 3. ✅ Wallet Permissions & Address Retrieval:
-![permission.jpg]
+▶️ **[Click Here to Watch the Frontline Ledger Level 4 MVP Demo]((https://drive.google.com/file/d/1CQv6W3VTyuA_V5KkK75By2t8fh6kFRNm/view))**
