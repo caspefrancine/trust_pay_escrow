@@ -71,3 +71,6 @@ impl FrontlineLedger {
         env.storage().persistent().set(&DataKey::DocHash(doc_hash), &record);
     }
 }
+
+#[cfg(test)]
+mod test;
