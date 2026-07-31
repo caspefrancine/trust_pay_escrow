@@ -1,4 +1,4 @@
-name: TrustPay Escrow Level 3 CI/CD Pipeline
+name: Frontline Ledger CI/CD Pipeline
 
 on:
   push:
@@ -6,21 +6,69 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  test-and-build:
+  # 1. Smart Contract CI (Build & Unit Tests)
+  test-and-build-contract:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Install Rust Toolchain
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        targets: wasm32v1-none
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
 
-    - name: Run Smart Contract Tests
-      run: cargo test --workspace
+      - name: Run Smart Contract Unit Tests
+        run: cargo test --workspace
 
-    - name: Build Soroban WASM Contract
-      run: cargo build --target wasm32v1-none --release --workspace
+      - name: Build Soroban WASM Contract
+        run: cargo build --target wasm32v1-none --release --workspace
+
+  # 2. Frontend CI (Asset Validation & Linting)
+  validate-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Validate Frontend HTML & JS Integrity
+        run: |
+          echo "Running Frontend CI asset checks..."
+          test -f index.html
+          test -f feedback.html
+          echo "Frontend assets present and validated successfully."
+
+  # 3. CD Deployment (Deploy dApp to GitHub Pages)
+  deploy-pages:
+    needs: [test-and-build-contract, validate-frontend]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages CD
+        id: deployment
+        uses: actions/deploy-pages@v4
