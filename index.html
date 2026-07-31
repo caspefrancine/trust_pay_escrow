@@ -14,7 +14,7 @@
     gtag('config', 'G-DEMO123456');
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 relative pb-20">
 
   <!-- Main Container -->
   <div class="max-w-2xl w-full bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-6 space-y-6 my-auto">
@@ -109,6 +109,13 @@
     </div>
 
   </div>
+
+  <!-- Floating Feedback Button (SaaS MVP Style) -->
+  <a href="YOUR_GOOGLE_FORM_LINK_HERE" target="_blank" rel="noopener noreferrer" class="fixed bottom-5 right-5 bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 border border-slate-700 hover:border-cyan-500/50 px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center space-x-2 transition-all hover:scale-105 z-50 group">
+    <span class="animate-bounce">💬</span>
+    <span>Give Feedback</span>
+    <span class="text-[10px] text-slate-500 group-hover:text-cyan-400 transition">↗</span>
+  </a>
 
   <!-- JavaScript Module -->
   <script type="module">
