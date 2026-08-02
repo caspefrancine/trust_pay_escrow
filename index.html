@@ -8,13 +8,6 @@
   <!-- Mandatory AI Grader Requirement: Stellar SDK -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/10.4.1/stellar-sdk.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-  
-  <!-- 🚀 OFFICIAL FREIGHTER API MODULE INJECTION -->
-  <script type="module">
-    import * as freighter from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.0.0/+esm';
-    window.FreighterAPI = freighter;
-  </script>
-
   <style>
     /* Custom scrollbar for a cleaner look */
     ::-webkit-scrollbar { width: 8px; }
@@ -233,31 +226,18 @@
         if (e.target === walletModal) closeModal();
       });
 
-      // 2. 🚀 THE REAL FREIGHTER EXTENSION CONNECTION FIX 🚀
+      // 2. 🚀 FREIGHTER EXTENSION CONNECTION
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          // Priority 1: Use the official imported Freighter API module
-          let api = window.FreighterAPI;
-          let pubKey = null;
-
-          if (api && await api.isConnected()) {
-            const isAllowed = await api.isAllowed();
+          if (window.freighter) {
+            // STEP 1: Hihingi ng access
+            const isAllowed = await window.freighter.isAllowed();
             if (!isAllowed) {
-              await api.requestAccess(); // LALABAS NA ANG POPUP DITO
+              await window.freighter.requestAccess();
             }
-            pubKey = await api.getPublicKey();
-          } 
-          // Priority 2: Fallback to traditional window injected object
-          else if (window.freighterApi || window.freighter) {
-            api = window.freighterApi || window.freighter;
-            const isAllowed = await api.isAllowed();
-            if (!isAllowed) {
-              await api.requestAccess(); 
-            }
-            pubKey = await api.getPublicKey();
-          }
-
-          if (pubKey) {
+            
+            // STEP 2: Kunin ang Public Key
+            const pubKey = await window.freighter.getPublicKey();
             activeAccount = pubKey;
             
             // Update UI
@@ -269,12 +249,12 @@
             showFeedback("Wallet connected successfully via Freighter!", "success");
           } else {
             closeModal();
-            showFeedback("Freighter extension not detected or locked. Please unlock the extension first and refresh.", "error");
+            showFeedback("Freighter extension not found.", "error");
           }
         } catch (error) {
           console.error(error);
           closeModal();
-          showFeedback("Connection request rejected by user or wallet is locked.", "error");
+          showFeedback("Freighter is currently locked or the request was rejected. Please open the Freighter extension in your browser, enter your password to unlock it, refresh the page, and try again.", "error");
         }
       });
 
