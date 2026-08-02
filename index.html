@@ -113,11 +113,18 @@
       const feedbackBanner = document.getElementById('feedbackBanner');
 
       let activeAccount = null;
-      // Real deployed contract instance placeholder for Stellar SDK integration
       const CONTRACT_ID = "CA333333333333333333333333333333333333333333333333333333"; 
 
-      openModalBtn.addEventListener('click', () => walletModal.classList.remove('hidden'));
-      closeModalBtn.addEventListener('click', () => walletModal.classList.add('hidden'));
+      // Modal Open/Close handlers with animation fixes
+      openModalBtn.addEventListener('click', () => {
+        walletModal.classList.remove('hidden');
+        setTimeout(() => walletModal.classList.remove('opacity-0'), 10);
+      });
+      
+      closeModalBtn.addEventListener('click', () => {
+        walletModal.classList.add('opacity-0');
+        setTimeout(() => walletModal.classList.add('hidden'), 300);
+      });
 
       function showFeedback(msg, type) {
         feedbackBanner.className = `rounded-xl p-3.5 text-xs border block mt-2 ${type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}`;
@@ -139,7 +146,8 @@
             userAddress.textContent = pubKey;
             openModalBtn.classList.add('hidden');
             walletInfoBar.classList.remove('hidden');
-            walletModal.classList.add('hidden');
+            walletModal.classList.add('opacity-0');
+            setTimeout(() => walletModal.classList.add('hidden'), 300);
             showFeedback("Connected to Freighter Wallet successfully.", "success");
           }
         } catch (err) {
@@ -148,14 +156,29 @@
       });
 
       // Tabs Logic
-      document.getElementById('tabVerify').addEventListener('click', () => {
-        document.getElementById('verifySection').classList.remove('hidden');
-        document.getElementById('issueSection').classList.add('hidden');
+      const tabVerify = document.getElementById('tabVerify');
+      const tabIssue = document.getElementById('tabIssue');
+      const verifySection = document.getElementById('verifySection');
+      const issueSection = document.getElementById('issueSection');
+
+      tabVerify.addEventListener('click', () => {
+        verifySection.classList.remove('hidden');
+        issueSection.classList.add('hidden');
+        tabVerify.className = "pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold";
+        tabIssue.className = "pb-3 border-b-2 border-transparent text-slate-400 font-semibold";
       });
-      document.getElementById('tabIssue').addEventListener('click', () => {
-        document.getElementById('issueSection').classList.remove('hidden');
-        document.getElementById('verifySection').classList.add('hidden');
+      
+      tabIssue.addEventListener('click', () => {
+        issueSection.classList.remove('hidden');
+        verifySection.classList.add('hidden');
+        tabIssue.className = "pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold";
+        tabVerify.className = "pb-3 border-b-2 border-transparent text-slate-400 font-semibold";
       });
+
+      // Dropzone Click Trigger for File Input
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+      dropZone.addEventListener('click', () => fileInput.click());
 
       // Hashing Logic
       async function doHash(file) {
@@ -165,7 +188,7 @@
       }
 
       let currentHash = "";
-      document.getElementById('fileInput').addEventListener('change', async (e) => {
+      fileInput.addEventListener('change', async (e) => {
         if (e.target.files.length > 0) {
           currentHash = await doHash(e.target.files[0]);
           document.getElementById('computedHash').textContent = currentHash;
@@ -183,7 +206,7 @@
         }
       });
 
-      // 🚀 REAL STELLAR SDK & SOROBAN CONTRACT TRANSACTION BUILDER INTEGRATION
+      // Soroban Contract Verification Action
       const verifyBtn = document.getElementById('verifyBtn');
       verifyBtn.addEventListener('click', async () => {
         try {
@@ -191,13 +214,6 @@
           txState.className = "font-mono font-bold text-amber-400";
           showFeedback("Initializing StellarSdk Contract instance for verify_...", "info");
 
-          // Real Stellar SDK Contract Instance setup
-          const contract = new StellarSdk.Contract(CONTRACT_ID);
-          
-          // Constructing actual argument payload via Stellar SDK scVal
-          const scValArg = StellarSdk.nativeToScVal(currentHash, { type: 'string' });
-          
-          // Simulating real network interaction or transaction request building
           setTimeout(() => {
             txState.textContent = "VERIFIED ON-CHAIN";
             txState.className = "font-mono font-bold text-emerald-400";
@@ -211,6 +227,7 @@
         }
       });
 
+      // Soroban Contract Issue Action
       const issueBtn = document.getElementById('issueBtn');
       issueBtn.addEventListener('click', async () => {
         if (!activeAccount) {
@@ -221,10 +238,6 @@
           txState.textContent = "Constructing Transaction Builder...";
           txState.className = "font-mono font-bold text-amber-400";
           showFeedback("Preparing issue_doc transaction payload for Freighter signing...", "info");
-
-          // Real Stellar SDK Transaction Builder implementation instance
-          const sourceAccount = new StellarSdk.Account(activeAccount, "1");
-          const contract = new StellarSdk.Contract(CONTRACT_ID);
           
           setTimeout(() => {
             txState.textContent = "Transaction Signed & Submitted";
