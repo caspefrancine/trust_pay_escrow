@@ -227,40 +227,39 @@
         if (e.target === walletModal) closeModal();
       });
 
-      // 2. 🚀 THE DIRECT POPUP FIX 🚀
+      // 2. 🚀 THE DIRECT POPUP FIX (INSTANT TRIGGER) 🚀
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          // Import the official Freighter API dynamically to ensure it fully loads before executing
-          const freighter = await import('https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.0.0/+esm');
+          // DIRECT CALL: Walang import-import para hindi ma-block ng browser
+          const api = window.freighterApi || window.freighter;
 
-          const isConnected = await freighter.isConnected();
-          
-          if (isConnected) {
-            // THIS forces the Freighter pop-up to prompt for password/permission!
-            await freighter.requestAccess();
-            
-            // Wait for the user to approve and fetch their key
-            const pubKey = await freighter.getPublicKey();
-            
-            if (pubKey) {
-              activeAccount = pubKey;
-              
-              // Update UI
-              userAddress.textContent = pubKey;
-              connectBtnContainer.classList.add('hidden'); 
-              walletInfoBar.classList.remove('hidden'); 
-              
-              closeModal();
-              showFeedback("Wallet connected successfully via Freighter!", "success");
-            }
-          } else {
+          if (!api) {
             closeModal();
-            showFeedback("Freighter extension not detected. Please make sure it is installed and enabled.", "error");
+            showFeedback("Freighter extension not found. Please refresh the page.", "error");
+            return;
+          }
+
+          // Force the popup!
+          await api.requestAccess();
+          
+          // Get the Key after user enters password and approves
+          const pubKey = await api.getPublicKey();
+
+          if (pubKey) {
+            activeAccount = pubKey;
+            
+            // Update UI
+            userAddress.textContent = pubKey;
+            connectBtnContainer.classList.add('hidden'); 
+            walletInfoBar.classList.remove('hidden'); 
+            
+            closeModal();
+            showFeedback("Wallet connected successfully via Freighter!", "success");
           }
         } catch (error) {
           console.error(error);
           closeModal();
-          showFeedback("Connection request was rejected or the pop-up was closed. Please try again.", "error");
+          showFeedback("Connection rejected. Please click the Freighter puzzle icon on top right to manually unlock it, then try again.", "error");
         }
       });
 
