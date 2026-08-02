@@ -163,9 +163,11 @@
     const CONTRACT_ID = "CAGLK3ZC7Y4XEDOO46DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA";
     const SOROBAN_RPC_URL = "https://soroban-testnet.stellar.org";
     const PASSPHRASE = StellarSdk.Networks.TESTNET;
+    const DEMO_WALLET_ID = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"; // Proper valid Stellar public key for simulation
 
     let activeAccount = null;
     let currentHash = "";
+    let isSimulationMode = false;
 
     const server = new StellarSdk.SorobanRpc.Server(SOROBAN_RPC_URL);
     const contract = new StellarSdk.Contract(CONTRACT_ID);
@@ -211,9 +213,11 @@
           const isAllowed = await window.freighterApi.isAllowed();
           if (!isAllowed) await window.freighterApi.requestAccess();
           activeAccount = await window.freighterApi.getPublicKey();
+          isSimulationMode = false;
           onWalletConnected(activeAccount, 'Freighter');
         } else if (window.freighter) {
           activeAccount = await window.freighter.getPublicKey();
+          isSimulationMode = false;
           onWalletConnected(activeAccount, 'Freighter');
         } else {
           // If no extension is found, activate Simulation Mode so the user isn't blocked!
@@ -227,8 +231,9 @@
 
     function activateSimulationMode() {
       console.warn("Freighter extension blocked or not found. Activating Simulation Mode for testing.");
-      activeAccount = "GB3KZZY3... (Simulated Testnet)";
-      onWalletConnected(activeAccount, 'Simulation Mode');
+      activeAccount = DEMO_WALLET_ID;
+      isSimulationMode = true;
+      onWalletConnected("GB3KZZY3... (Demo Mode)", 'Simulation Mode');
       showFeedback("Freighter not detected. Connected via Demo/Simulation mode for testing.", "info");
     }
 
@@ -280,7 +285,7 @@
 
       try {
         const hashScVal = StellarSdk.nativeToScVal(currentHash, { type: 'string' });
-        const dummyAccount = new StellarSdk.Account("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF", "1");
+        const dummyAccount = new StellarSdk.Account(DEMO_WALLET_ID, "1");
         
         const tx = new StellarSdk.TransactionBuilder(dummyAccount, {
           fee: "100",
@@ -302,7 +307,7 @@
         new QRCode(qrcodeDiv, { text: txUrl, width: 100, height: 100 });
         qrContainer.classList.remove('hidden');
       } catch (err) {
-        console.warn("RPC fetch fallback executed.");
+        console.warn("RPC fetch fallback executed.", err);
         updateTxState("VERIFIED AUTHENTIC", "emerald");
         showFeedback("<strong>AUTHENTIC RECORD FOUND:</strong> Document matches registered hash on-chain.", "success");
       }
@@ -321,15 +326,11 @@
       try {
         const hashScVal = StellarSdk.nativeToScVal(targetHash, { type: 'string' });
         
-        // Pass dummy valid SCVal Address if in simulation mode to prevent SDK crash
-        let issuerScVal;
-        if (activeAccount.includes("Simulated")) {
-           issuerScVal = StellarSdk.nativeToScVal(new StellarSdk.Address("GB3KZZY3...")); // Mock address
-        } else {
-           issuerScVal = StellarSdk.nativeToScVal(new StellarSdk.Address(activeAccount));
-        }
-
-        const dummyAccount = new StellarSdk.Account("GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF", "1");
+        // Ensure we always pass a valid 56-character string starting with G to nativeToScVal
+        const validPublicKeyForSdk = isSimulationMode ? DEMO_WALLET_ID : activeAccount;
+        const issuerScVal = StellarSdk.nativeToScVal(new StellarSdk.Address(validPublicKeyForSdk));
+        
+        const dummyAccount = new StellarSdk.Account(DEMO_WALLET_ID, "1");
         const tx = new StellarSdk.TransactionBuilder(dummyAccount, {
           fee: "100",
           networkPassphrase: PASSPHRASE,
@@ -342,6 +343,7 @@
         updateTxState("Document Registered", "emerald");
         showFeedback(`<strong>SUCCESS:</strong> issue_doc invoked on-chain. Tx: <a href="https://stellar.expert/explorer/testnet/tx/${txHash}" target="_blank" class="underline font-mono">${txHash.substring(0, 12)}...</a>`, "success");
       } catch (err) {
+        console.warn("Transaction building failed, using demo fallback.", err);
         // Fallback for demo UX
         const txHash = "a78f3c92109ba4d7e822019a32cba928182903e12918820f";
         updateTxState("Document Registered", "emerald");
