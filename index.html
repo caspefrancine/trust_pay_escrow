@@ -28,7 +28,7 @@
         <p class="text-xs text-slate-400 leading-relaxed">Wallets are used to send, receive, and store the keys you use to sign blockchain transactions.</p>
       </div>
       <div class="w-full md:w-7/12 p-8 relative">
-        <button id="closeModalBtn" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">✕</button>
+        <button id="closeModalBtn" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors cursor-pointer">✕</button>
         <h3 class="text-lg font-bold text-white mb-6">Connect a Wallet</h3>
         <button id="freighterSelectBtn" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 transition-colors group bg-slate-900 cursor-pointer">
           <span class="text-lg mr-4">⚓</span>
@@ -100,10 +100,7 @@
     <div id="feedbackBanner" class="hidden rounded-xl p-3.5 text-xs border"></div>
   </main>
 
-  <!-- MODERN ES MODULE SCRIPT FOR FREIGHTER API -->
-  <script type="module">
-    import { isConnected, requestAccess, getPublicKey } from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.2.0/+esm';
-
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       const walletModal = document.getElementById('walletModal');
       const openModalBtn = document.getElementById('openModalBtn');
@@ -133,16 +130,42 @@
         feedbackBanner.innerHTML = msg;
       }
 
-      // Official Modern Freighter Connection Handler
+      // Safe Polling Helper to detect Freighter asynchronously injected API
+      function getFreighterAPI() {
+        return new Promise((resolve) => {
+          if (window.freighter || window.freighterApi) {
+            return resolve(window.freighter || window.freighterApi);
+          }
+          let attempts = 0;
+          const checkInterval = setInterval(() => {
+            if (window.freighter || window.freighterApi) {
+              clearInterval(checkInterval);
+              resolve(window.freighter || window.freighterApi);
+            }
+            attempts++;
+            if (attempts > 15) { // wait up to 3 seconds
+              clearInterval(checkInterval);
+              resolve(null);
+            }
+          }, 200);
+        });
+      }
+
+      // Robust Freighter Wallet Connection Handler with Retry Loop
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          const installed = await isConnected();
-          if (!installed) {
-            alert("Freighter extension is not detected. Please ensure it is installed and enabled.");
+          showFeedback("Detecting Freighter extension...", "info");
+          const freighterApi = await getFreighterAPI();
+          
+          if (!freighterApi) {
+            alert("Freighter extension is not detected or still loading. Please ensure it is installed and unlocked.");
+            showFeedback("Freighter extension not found.", "error");
             return;
           }
-          await requestAccess();
-          const pubKey = await getPublicKey();
+
+          await freighterApi.requestAccess();
+          const pubKey = await freighterApi.getPublicKey();
+          
           if (pubKey) {
             activeAccount = pubKey;
             userAddress.textContent = pubKey;
