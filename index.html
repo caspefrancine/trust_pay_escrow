@@ -188,10 +188,7 @@
     </div>
   </main>
 
-  <script type="module">
-    // Load the official API instantly when the script runs
-    import * as freighterAPI from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.0.0/+esm';
-
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       // 1. MODAL UI LOGIC
       const walletModal = document.getElementById('walletModal');
@@ -230,36 +227,28 @@
         if (e.target === walletModal) closeModal();
       });
 
-      // 2. OFFICIAL FREIGHTER CONNECTION FIX
+      // 2. 🚀 PURE STANDARD DIRECT TRIGGER (AUTOMATIC POPUP)
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          const isConnected = await freighterAPI.isConnected();
-
-          if (!isConnected) {
-            closeModal();
-            showFeedback("Freighter is not detected. Please ensure the extension is enabled and has permission to access this site.", "error");
-            return;
-          }
-
-          // Trigger the password pop-up and request permission
-          await freighterAPI.requestAccess();
-          const pubKey = await freighterAPI.getPublicKey();
-
-          if (pubKey) {
-            activeAccount = pubKey;
+          if (window.freighterApi) {
+            await window.freighterApi.setAllowed();
+            await window.freighterApi.requestAccess();
+            const pubKey = await window.freighterApi.getPublicKey();
             
-            // Update UI
-            userAddress.textContent = pubKey;
-            connectBtnContainer.classList.add('hidden'); 
-            walletInfoBar.classList.remove('hidden'); 
-            
-            closeModal();
-            showFeedback("Wallet connected successfully via Freighter!", "success");
+            if (pubKey) {
+              activeAccount = pubKey;
+              userAddress.textContent = pubKey;
+              connectBtnContainer.classList.add('hidden'); 
+              walletInfoBar.classList.remove('hidden'); 
+              closeModal();
+              showFeedback("Wallet connected successfully via Freighter!", "success");
+            }
+          } else {
+            alert("Freighter extension is not detected. Please ensure it is installed.");
           }
         } catch (error) {
           console.error(error);
-          closeModal();
-          showFeedback("Connection rejected. Please manually open the Freighter extension, log in, and try again.", "error");
+          showFeedback("Connection request was cancelled or failed.", "error");
         }
       });
 
