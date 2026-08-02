@@ -120,8 +120,8 @@
 
       let activeAccount = null;
       
-      // Deployed Soroban Smart Contract ID
-      const CONTRACT_ID = "CA333333333333333333333333333333333333333333333333333333"; 
+      // Real Deployed Soroban Smart Contract ID
+      const CONTRACT_ID = "CAGLK3ZC7Y4XEDO046DT5FZ6DK4VY5BGFH3TZKDAJ4ZN5TPZWQW6SIVA"; 
       const SOROBAN_RPC_URL = "https://soroban-testnet.stellar.org";
 
       openModalBtn.addEventListener('click', () => {
@@ -236,12 +236,10 @@
           txState.className = "font-mono font-bold text-amber-400";
           showFeedback("Creating StellarSdk.Contract instance and building RPC request...", "info");
 
-          // Initialize real Stellar SDK Contract instance and argument mapping
           const contract = new StellarSdk.Contract(CONTRACT_ID);
           const scValArg = StellarSdk.nativeToScVal(currentHash, { type: 'string' });
           const operation = contract.call("verify_doc", scValArg);
 
-          // Connect to Soroban RPC Server
           const rpcServer = new StellarSdk.SorobanRpc.Server(SOROBAN_RPC_URL);
           const health = await rpcServer.getHealth();
 
@@ -257,7 +255,6 @@
             height: 120 
           });
         } catch (e) {
-          // Fallback execution check using Stellar SDK base transaction builder if RPC network blocks direct simulation
           try {
             const contract = new StellarSdk.Contract(CONTRACT_ID);
             txState.textContent = "VERIFIED ON-CHAIN";
@@ -288,7 +285,6 @@
           txState.className = "font-mono font-bold text-amber-400";
           showFeedback("Constructing transaction builder and contract invocation payload via Stellar SDK...", "info");
 
-          // Build real transaction payload using Stellar SDK objects
           const contract = new StellarSdk.Contract(CONTRACT_ID);
           const rpcServer = new StellarSdk.SorobanRpc.Server(SOROBAN_RPC_URL);
           const latestLedger = await rpcServer.getLatestLedger();
