@@ -188,10 +188,7 @@
     </div>
   </main>
 
-  <!-- OFFICIAL MODERN FREIGHTER API SCRIPT (MODULE) -->
-  <script type="module">
-    import * as freighter from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.2.0/+esm';
-
+  <script>
     document.addEventListener("DOMContentLoaded", () => {
       const walletModal = document.getElementById('walletModal');
       const walletModalContent = document.getElementById('walletModalContent');
@@ -229,21 +226,22 @@
         if (e.target === walletModal) closeModal();
       });
 
-      // 🚀 MODERN OFFICIAL ES MODULE FREIGHTER TRIGGER
+      // 🚀 RESTORED ORIGINAL WORKING FLOW FOR FREIGHTER
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          // Check connection using official package
-          const isInstalled = await freighter.isConnected();
+          const freighterApi = window.freighter || window.freighterApi;
 
-          if (!isInstalled) {
-            closeModal();
-            showFeedback("Freighter extension is not detected. Please ensure it is installed and enabled.", "error");
+          if (!freighterApi) {
+            alert("Freighter extension not detected. Please make sure it is installed.");
             return;
           }
 
-          // Automatically requests access and triggers the password/permission prompt overlay
-          await freighter.requestAccess();
-          const pubKey = await freighter.getPublicKey();
+          const isAllowed = await freighterApi.isAllowed();
+          if (!isAllowed) {
+            await freighterApi.requestAccess();
+          }
+
+          const pubKey = await freighterApi.getPublicKey();
 
           if (pubKey) {
             activeAccount = pubKey;
@@ -255,8 +253,7 @@
           }
         } catch (error) {
           console.error(error);
-          closeModal();
-          showFeedback("Connection request was rejected or wallet is locked. Please unlock Freighter and try again.", "error");
+          showFeedback("Connection request was cancelled or failed. Please unlock your wallet.", "error");
         }
       });
 
