@@ -1,4 +1,111 @@
-<!-- OFFICIAL ES MODULE SCRIPT FOR FREIGHTER API -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontline Ledger v2.0 - Decentralized Credential Protocol</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Mandatory Stellar SDK & Browser-Compatible QR Code Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/10.4.1/stellar-sdk.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center p-4 sm:p-6 relative pb-24 selection:bg-cyan-500 selection:text-slate-950">
+
+  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 right-10 w-[300px] h-[300px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none -z-10"></div>
+
+  <!-- FLOATING FEEDBACK BUTTON -->
+  <a href="feedback.html" class="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold text-xs py-3 px-4 rounded-full shadow-lg shadow-cyan-500/20 hover:scale-105 transition flex items-center space-x-2 cursor-pointer">
+    <span>💬</span> <span>Give Feedback</span>
+  </a>
+
+  <!-- WALLET MODAL -->
+  <div id="walletModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-[#1a1c23] w-full max-w-2xl rounded-2xl flex flex-col md:flex-row overflow-hidden shadow-2xl shadow-cyan-500/10 transform scale-95 transition-transform duration-300 mx-4" id="walletModalContent">
+      <div class="bg-[#22252e] w-full md:w-5/12 p-8 space-y-6">
+        <h3 class="text-lg font-bold text-white">Learn more</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">Wallets are used to send, receive, and store the keys you use to sign blockchain transactions.</p>
+      </div>
+      <div class="w-full md:w-7/12 p-8 relative">
+        <button id="closeModalBtn" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors cursor-pointer">✕</button>
+        <h3 class="text-lg font-bold text-white mb-6">Connect a Wallet</h3>
+        <button id="freighterSelectBtn" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 transition-colors group bg-slate-900 cursor-pointer">
+          <span class="text-lg mr-4">⚓</span>
+          <span class="text-sm font-semibold text-slate-200 group-hover:text-white">Connect Freighter Wallet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <header class="max-w-3xl w-full flex flex-col space-y-4 mb-4 mt-8">
+    <div class="flex justify-between items-center bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-bold text-slate-950 text-xl">🛡️</div>
+        <div>
+          <h1 class="text-xl font-extrabold text-cyan-400">Frontline Ledger <span class="text-xs font-mono border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 rounded-full ml-1">v2.0 MVP</span></h1>
+          <p class="text-slate-400 text-[11px]">Decentralized Document Authentication on Stellar Testnet</p>
+        </div>
+      </div>
+      <button id="openModalBtn" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs py-2.5 px-5 rounded-xl transition cursor-pointer">Connect Wallet</button>
+    </div>
+    <div id="walletInfoBar" class="hidden bg-slate-950/90 rounded-xl p-3 border border-emerald-500/30 flex justify-between items-center text-xs">
+      <span class="text-slate-400">Connected: <strong id="userAddress" class="font-mono text-cyan-300">--</strong></span>
+      <span class="bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded text-[10px] font-mono">STELLAR TESTNET</span>
+    </div>
+  </header>
+
+  <main class="max-w-3xl w-full bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex border-b border-slate-800 space-x-6 text-sm font-semibold">
+      <button id="tabVerify" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 cursor-pointer">Public Verifier</button>
+      <button id="tabIssue" class="pb-3 border-b-2 border-transparent text-slate-400 cursor-pointer">Issuer Portal</button>
+    </div>
+
+    <!-- VERIFY SECTION -->
+    <div id="verifySection" class="space-y-4">
+      <p class="text-xs text-slate-400">Upload document to compute SHA-256 hash and invoke smart contract lookup via Soroban RPC.</p>
+      <div id="dropZone" class="border-2 border-dashed border-slate-700/80 rounded-2xl p-8 text-center cursor-pointer bg-slate-950/50 hover:bg-slate-950/80">
+        <input type="file" id="fileInput" class="hidden" />
+        <p class="text-xs text-slate-200 font-semibold">Click or Drop Document Here</p>
+      </div>
+      <div id="hashDisplay" class="hidden space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+        <span class="text-slate-400 font-semibold">SHA-256 Hash:</span>
+        <code id="computedHash" class="text-cyan-400 font-mono text-[11px] block bg-slate-900 p-2 rounded">--</code>
+      </div>
+      <button id="verifyBtn" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl text-sm disabled:opacity-50 cursor-pointer" disabled>
+        Verify via Soroban RPC Contract Call
+      </button>
+      <div id="qrContainer" class="hidden flex flex-col items-center space-y-3 bg-slate-950/80 border border-emerald-500/30 p-4 rounded-xl">
+        <span class="text-xs font-bold text-emerald-400">On-Chain Verification Proof</span>
+        <div id="qrcode" class="p-2 bg-white rounded-lg flex justify-center items-center"></div>
+      </div>
+    </div>
+
+    <!-- ISSUER SECTION -->
+    <div id="issueSection" class="hidden space-y-4">
+      <input type="text" id="docTitleInput" placeholder="Document Title / Reference" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100">
+      <input type="file" id="issuerFileInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300">
+      <div id="issuerHashDisplay" class="hidden bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+        <code id="issuerComputedHash" class="text-emerald-400 font-mono text-[11px] block">--</code>
+      </div>
+      <button id="issueBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm disabled:opacity-50 cursor-pointer" disabled>
+        Sign & Register via Stellar SDK Contract Call
+      </button>
+    </div>
+
+    <div class="border-t border-slate-800/80 pt-4 text-xs flex justify-between">
+      <span class="text-slate-500">Soroban RPC Status:</span>
+      <span id="txState" class="font-mono text-slate-400">Idle</span>
+    </div>
+    <div id="feedbackBanner" class="hidden rounded-xl p-3.5 text-xs border"></div>
+  </main>
+
+  <!-- OFFICIAL ES MODULE SCRIPT FOR FREIGHTER API -->
   <script type="module">
     import { requestAccess, getPublicKey } from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.2.0/+esm';
 
@@ -32,12 +139,11 @@
         feedbackBanner.innerHTML = msg;
       }
 
-      // Fully automatic Freighter connection without blocking await checks
+      // Direct user-gesture triggered Freighter connection
       freighterSelectBtn.addEventListener('click', async () => {
         try {
           showFeedback("Requesting Freighter extension access...", "info");
 
-          // Directly request access within the immediate user click execution stack
           await requestAccess();
           const pubKey = await getPublicKey();
 
@@ -50,7 +156,7 @@
             setTimeout(() => walletModal.classList.add('hidden'), 300);
             showFeedback("Connected to Freighter wallet successfully.", "success");
           } else {
-            showFeedback("Could not retrieve public key from Freighter. Please unlock your wallet.", "error");
+            showFeedback("Could not retrieve public key from Freighter.", "error");
           }
         } catch (err) {
           console.error(err);
@@ -183,3 +289,5 @@
       });
     });
   </script>
+</body>
+</html>
