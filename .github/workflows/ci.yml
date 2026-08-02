@@ -48,14 +48,14 @@ jobs:
         run: |
           echo "Running Frontend CI asset checks..."
           test -f index.html
-          echo "Frontend assets present and validated successfully."
+          test -f feedback.html
+          echo "All frontend assets (index.html, feedback.html) present and validated successfully."
 
   # 3. CD Deployment (Deploy dApp to GitHub Pages)
   deploy-pages:
     needs: [test-and-build-contract, validate-frontend]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # ETO ANG KULANG KAYA NAG-ERROR:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
