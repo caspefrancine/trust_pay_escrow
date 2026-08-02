@@ -8,6 +8,13 @@
   <!-- Mandatory AI Grader Requirement: Stellar SDK -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/10.4.1/stellar-sdk.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  
+  <!-- 🚀 OFFICIAL FREIGHTER API MODULE INJECTION -->
+  <script type="module">
+    import * as freighter from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.0.0/+esm';
+    window.FreighterAPI = freighter;
+  </script>
+
   <style>
     /* Custom scrollbar for a cleaner look */
     ::-webkit-scrollbar { width: 8px; }
@@ -21,7 +28,7 @@
   <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
   <div class="fixed bottom-10 right-10 w-[300px] h-[300px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none -z-10"></div>
 
-  <!-- 🚀 CUSTOM WALLET MODAL -->
+  <!-- CUSTOM WALLET MODAL -->
   <div id="walletModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
     <div class="bg-[#1a1c23] w-full max-w-2xl rounded-2xl flex flex-col md:flex-row overflow-hidden shadow-2xl shadow-cyan-500/10 transform scale-95 transition-transform duration-300 mx-4" id="walletModalContent">
       
@@ -229,18 +236,28 @@
       // 2. 🚀 THE REAL FREIGHTER EXTENSION CONNECTION FIX 🚀
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          // IMPORTANT FIX: Checked BOTH window.freighter and window.freighterApi 
-          const stellarWallet = window.freighter || window.freighterApi;
+          // Priority 1: Use the official imported Freighter API module
+          let api = window.FreighterAPI;
+          let pubKey = null;
 
-          if (stellarWallet) {
-            // Humihingi ng totoong permission popup
-            const isAllowed = await stellarWallet.isAllowed();
+          if (api && await api.isConnected()) {
+            const isAllowed = await api.isAllowed();
             if (!isAllowed) {
-              await stellarWallet.requestAccess();
+              await api.requestAccess(); // LALABAS NA ANG POPUP DITO
             }
-            
-            // Kukunin ang totoong public key
-            const pubKey = await stellarWallet.getPublicKey();
+            pubKey = await api.getPublicKey();
+          } 
+          // Priority 2: Fallback to traditional window injected object
+          else if (window.freighterApi || window.freighter) {
+            api = window.freighterApi || window.freighter;
+            const isAllowed = await api.isAllowed();
+            if (!isAllowed) {
+              await api.requestAccess(); 
+            }
+            pubKey = await api.getPublicKey();
+          }
+
+          if (pubKey) {
             activeAccount = pubKey;
             
             // Update UI
@@ -252,12 +269,12 @@
             showFeedback("Wallet connected successfully via Freighter!", "success");
           } else {
             closeModal();
-            showFeedback("Freighter extension not found. (Make sure you are on GitHub Pages or Live Server, NOT file:///)", "error");
+            showFeedback("Freighter extension not detected or locked. Please unlock the extension first and refresh.", "error");
           }
         } catch (error) {
           console.error(error);
           closeModal();
-          showFeedback("Connection request rejected by user.", "error");
+          showFeedback("Connection request rejected by user or wallet is locked.", "error");
         }
       });
 
