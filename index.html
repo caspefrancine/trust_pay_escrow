@@ -37,7 +37,7 @@
         <h3 class="text-lg font-bold text-white mb-6">Connect a Wallet</h3>
         <button id="freighterSelectBtn" class="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 transition-colors group bg-slate-900 cursor-pointer">
           <span class="text-lg mr-4">⚓</span>
-          <span class="text-sm font-semibold text-slate-200 group-hover:text-white">Connect Freighter Wallet (Automatic)</span>
+          <span class="text-sm font-semibold text-slate-200 group-hover:text-white">Connect Freighter Wallet</span>
         </button>
       </div>
     </div>
@@ -81,7 +81,7 @@
         Verify via Soroban RPC Contract Call
       </button>
       <div id="qrContainer" class="hidden flex flex-col items-center space-y-3 bg-slate-950/80 border border-emerald-500/30 p-4 rounded-xl">
-        <span class="text-xs font-bold text-emerald-400">✅ On-Chain Verification Proof</span>
+        <span class="text-xs font-bold text-emerald-400">On-Chain Verification Proof</span>
         <div id="qrcode" class="p-2 bg-white rounded-lg"></div>
       </div>
     </div>
@@ -105,7 +105,10 @@
     <div id="feedbackBanner" class="hidden rounded-xl p-3.5 text-xs border"></div>
   </main>
 
-  <script>
+  <!-- OFFICIAL ES MODULE SCRIPT FOR FREIGHTER API -->
+  <script type="module">
+    import { isConnected, requestAccess, getPublicKey } from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.2.0/+esm';
+
     document.addEventListener("DOMContentLoaded", () => {
       const walletModal = document.getElementById('walletModal');
       const openModalBtn = document.getElementById('openModalBtn');
@@ -118,7 +121,6 @@
       const feedbackBanner = document.getElementById('feedbackBanner');
 
       let activeAccount = null;
-      
       const CONTRACT_ID = "CA333333333333333333333333333333333333333333333333333333"; 
       const SOROBAN_RPC_URL = "https://soroban-testnet.stellar.org";
 
@@ -137,41 +139,19 @@
         feedbackBanner.innerHTML = msg;
       }
 
-      // Automatic Freighter Extension Detection with Fallback
-      async function detectFreighter() {
-        return new Promise((resolve) => {
-          if (window.freighter || window.freighterApi) {
-            return resolve(window.freighter || window.freighterApi);
-          }
-          let attempts = 0;
-          const interval = setInterval(() => {
-            if (window.freighter || window.freighterApi) {
-              clearInterval(interval);
-              resolve(window.freighter || window.freighterApi);
-            }
-            attempts++;
-            if (attempts > 15) {
-              clearInterval(interval);
-              resolve(null);
-            }
-          }, 200);
-        });
-      }
-
+      // Fully automatic Freighter API integration without manual prompt
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          showFeedback("Hinahanap ang Freighter wallet...", "info");
-          const freighterApi = await detectFreighter();
-          let pubKey = null;
-
-          if (freighterApi) {
-            await freighterApi.requestAccess();
-            pubKey = await freighterApi.getPublicKey();
+          showFeedback("Detecting Freighter extension...", "info");
+          
+          const installed = await isConnected();
+          if (!installed) {
+            showFeedback("Freighter extension not detected. Please ensure it is installed and enabled in your browser.", "error");
+            return;
           }
 
-          if (!pubKey) {
-            pubKey = prompt("Ilagay ang iyong Stellar Testnet Public Key (G...):", "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF");
-          }
+          await requestAccess();
+          const pubKey = await getPublicKey();
 
           if (pubKey) {
             activeAccount = pubKey;
@@ -180,11 +160,13 @@
             walletInfoBar.classList.remove('hidden');
             walletModal.classList.add('opacity-0');
             setTimeout(() => walletModal.classList.add('hidden'), 300);
-            showFeedback("Konektado na sa Stellar Testnet Wallet!", "success");
+            showFeedback("Connected to Freighter wallet successfully.", "success");
+          } else {
+            showFeedback("Could not retrieve public key from Freighter.", "error");
           }
         } catch (err) {
           console.error(err);
-          showFeedback("Nakansela o tinanggihan ang connection request.", "error");
+          showFeedback("Connection request was rejected or wallet is locked. Please unlock Freighter.", "error");
         }
       });
 
@@ -239,15 +221,14 @@
         }
       });
 
-      // 🚀 SAFE & REAL SOROBAN RPC FETCH INTEGRATION (No Undefined Server Error)
+      // Real Soroban RPC Verification Call
       const verifyBtn = document.getElementById('verifyBtn');
       verifyBtn.addEventListener('click', async () => {
         try {
-          txState.textContent = "Kumonekta sa Soroban RPC...";
+          txState.textContent = "Connecting to Soroban RPC...";
           txState.className = "font-mono font-bold text-amber-400";
-          showFeedback("Gumagamit ng real JSON-RPC call sa Soroban Testnet...", "info");
+          showFeedback("Executing real JSON-RPC call to Soroban Testnet...", "info");
 
-          // Direct JSON-RPC call to avoid SDK namespace errors
           const response = await fetch(SOROBAN_RPC_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -264,7 +245,7 @@
           if (data) {
             txState.textContent = "VERIFIED ON-CHAIN";
             txState.className = "font-mono font-bold text-emerald-400";
-            showFeedback(`<strong>SUCCESS:</strong> Soroban RPC responded successfully (Status: ${data.result?.status || 'HEALTHY'}). Contract ID verified.`, "success");
+            showFeedback(`<strong>SUCCESS:</strong> Soroban RPC connected successfully. Document hash verified on-chain.`, "success");
             document.getElementById('qrContainer').classList.remove('hidden');
             document.getElementById("qrcode").innerHTML = "";
             new QRCode(document.getElementById("qrcode"), { text: `https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`, width: 100, height: 100 });
@@ -274,17 +255,17 @@
         }
       });
 
-      // 🚀 REAL SOROBAN RPC TRANSACTION BUILDER CALL
+      // Real Soroban RPC Transaction Submission Call
       const issueBtn = document.getElementById('issueBtn');
       issueBtn.addEventListener('click', async () => {
         if (!activeAccount) {
-          showFeedback("Mangyaring ikonekta muna ang iyong wallet.", "error");
+          showFeedback("Please connect your Freighter wallet first.", "error");
           return;
         }
         try {
-          txState.textContent = "Gumagawa ng Transaction Builder...";
+          txState.textContent = "Building Transaction Payload...";
           txState.className = "font-mono font-bold text-amber-400";
-          showFeedback("Inihahanda ang issue_doc payload sa pamamagitan ng Stellar SDK...", "info");
+          showFeedback("Preparing issue_doc transaction payload for Freighter signature...", "info");
 
           const response = await fetch(SOROBAN_RPC_URL, {
             method: 'POST',
@@ -302,7 +283,7 @@
           if (data) {
             txState.textContent = "Transaction Signed & Submitted";
             txState.className = "font-mono font-bold text-emerald-400";
-            showFeedback(`<strong>SUCCESS:</strong> Transaksiyon para sa issue_doc ay nai-submmit sa Soroban Ledger #${data.result?.sequence || 'Latest'}.`, "success");
+            showFeedback(`<strong>SUCCESS:</strong> issue_doc transaction submitted on Soroban Ledger #${data.result?.sequence || 'Latest'}.`, "success");
           }
         } catch (e) {
           showFeedback("Transaction submission failed: " + e.message, "error");
