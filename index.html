@@ -9,6 +9,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/10.4.1/stellar-sdk.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   
+  <!-- 🚀 OFFICIAL FREIGHTER API MODULE LOADER -->
+  <script type="module">
+    import * as freighter from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.0.0/+esm';
+    window.FreighterAPI = freighter;
+  </script>
+
   <style>
     /* Custom scrollbar for a cleaner look */
     ::-webkit-scrollbar { width: 8px; }
@@ -227,28 +233,43 @@
         if (e.target === walletModal) closeModal();
       });
 
-      // 2. 🚀 PURE STANDARD DIRECT TRIGGER (AUTOMATIC POPUP)
+      // 2. 🚀 BULLETPROOF MULTI-FALLBACK CONNECTION
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          if (window.freighterApi) {
-            await window.freighterApi.setAllowed();
-            await window.freighterApi.requestAccess();
-            const pubKey = await window.freighterApi.getPublicKey();
+          // Check all possible ways Freighter can be injected
+          const freighterObj = window.FreighterAPI || window.freighter || window.freighterApi;
+
+          if (!freighterObj) {
+            closeModal();
+            showFeedback("Freighter extension is loading or not detected. Please ensure it is unlocked and refresh the page.", "error");
+            return;
+          }
+
+          // Request access (opens password/permission prompt)
+          if (typeof freighterObj.requestAccess === 'function') {
+            await freighterObj.requestAccess();
+          }
+
+          const pubKey = await freighterObj.getPublicKey();
+
+          if (pubKey) {
+            activeAccount = pubKey;
             
-            if (pubKey) {
-              activeAccount = pubKey;
-              userAddress.textContent = pubKey;
-              connectBtnContainer.classList.add('hidden'); 
-              walletInfoBar.classList.remove('hidden'); 
-              closeModal();
-              showFeedback("Wallet connected successfully via Freighter!", "success");
-            }
+            // Update UI
+            userAddress.textContent = pubKey;
+            connectBtnContainer.classList.add('hidden'); 
+            walletInfoBar.classList.remove('hidden'); 
+            
+            closeModal();
+            showFeedback("Wallet connected successfully via Freighter!", "success");
           } else {
-            alert("Freighter extension is not detected. Please ensure it is installed.");
+            closeModal();
+            showFeedback("Could not retrieve public key from Freighter.", "error");
           }
         } catch (error) {
           console.error(error);
-          showFeedback("Connection request was cancelled or failed.", "error");
+          closeModal();
+          showFeedback("Connection request was rejected or wallet is locked. Please unlock Freighter and try again.", "error");
         }
       });
 
