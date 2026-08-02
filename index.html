@@ -188,7 +188,10 @@
     </div>
   </main>
 
-  <script>
+  <!-- OFFICIAL MODERN FREIGHTER API SCRIPT (MODULE) -->
+  <script type="module">
+    import * as freighter from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@3.2.0/+esm';
+
     document.addEventListener("DOMContentLoaded", () => {
       const walletModal = document.getElementById('walletModal');
       const walletModalContent = document.getElementById('walletModalContent');
@@ -226,21 +229,21 @@
         if (e.target === walletModal) closeModal();
       });
 
-      // 🚀 DIRECT UNRESTRICTED FREIGHTER PROMPT
+      // 🚀 MODERN OFFICIAL ES MODULE FREIGHTER TRIGGER
       freighterSelectBtn.addEventListener('click', async () => {
         try {
-          // Check if Freighter exists in any injection format
-          const freighterApi = window.freighter || window.freighterApi;
+          // Check connection using official package
+          const isInstalled = await freighter.isConnected();
 
-          if (!freighterApi) {
+          if (!isInstalled) {
             closeModal();
-            showFeedback("Freighter extension is not detected in this browser window. Please make sure it is installed and enabled.", "error");
+            showFeedback("Freighter extension is not detected. Please ensure it is installed and enabled.", "error");
             return;
           }
 
-          // Direct request access to trigger the popup prompt immediately
-          await freighterApi.requestAccess();
-          const pubKey = await freighterApi.getPublicKey();
+          // Automatically requests access and triggers the password/permission prompt overlay
+          await freighter.requestAccess();
+          const pubKey = await freighter.getPublicKey();
 
           if (pubKey) {
             activeAccount = pubKey;
@@ -253,7 +256,7 @@
         } catch (error) {
           console.error(error);
           closeModal();
-          showFeedback("Connection request was closed or denied. Please unlock your Freighter wallet and try again.", "error");
+          showFeedback("Connection request was rejected or wallet is locked. Please unlock Freighter and try again.", "error");
         }
       });
 
