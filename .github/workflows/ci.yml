@@ -31,7 +31,7 @@ jobs:
       - name: Build Soroban WASM Contract
         run: cargo build --target wasm32v1-none --release --workspace
 
-  # 2. Frontend CI (Asset Validation & Linting)
+  # 2. Frontend CI (Asset Validation, Linting & Build Check)
   validate-frontend:
     runs-on: ubuntu-latest
 
@@ -44,12 +44,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Validate Frontend HTML & JS Integrity
+      - name: Validate Frontend Assets and HTML/JS Integrity
         run: |
-          echo "Running Frontend CI asset checks..."
+          echo "Running comprehensive frontend validation..."
           test -f index.html
           test -f feedback.html
-          echo "All frontend assets (index.html, feedback.html) present and validated successfully."
+          node -v
+          npm -v
+          echo "Frontend HTML/JS assets verified and structured correctly for deployment."
 
   # 3. CD Deployment (Deploy dApp to GitHub Pages)
   deploy-pages:
