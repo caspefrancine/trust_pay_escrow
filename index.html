@@ -54,9 +54,9 @@
       </div>
       <button id="openModalBtn" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs py-2.5 px-5 rounded-xl transition cursor-pointer">Connect Wallet</button>
     </div>
-    <div id="walletInfoBar" class="hidden bg-slate-950/90 rounded-xl p-3 border border-emerald-500/30 flex justify-between items-center text-xs">
-      <span class="text-slate-400">Connected: <strong id="userAddress" class="font-mono text-cyan-300">--</strong></span>
-      <span class="bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded text-[10px] font-mono">STELLAR TESTNET</span>
+    <div id="walletInfoBar" class="hidden bg-slate-950/90 rounded-xl p-3 border border-emerald-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2">
+      <span class="text-slate-400 truncate w-full">Connected: <strong id="userAddress" class="font-mono text-cyan-300 block sm:inline truncate">--</strong></span>
+      <span class="bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded text-[10px] font-mono shrink-0">STELLAR TESTNET</span>
     </div>
   </header>
 
